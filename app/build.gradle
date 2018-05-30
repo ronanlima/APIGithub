@@ -21,6 +21,7 @@ android {
 final androidVersion = '27.0.2'
 final daggerVersion = '2.8'
 final lifecycleVersion = '1.1.1'
+final retrofitVersion = '2.4.0'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -34,6 +35,8 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:$lifecycleVersion"
     implementation "com.google.dagger:dagger:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     testImplementation 'junit:junit:4.12'
 //    testImplementation "android.arch.core:core-testing:$lifecycleVersion"
 }
