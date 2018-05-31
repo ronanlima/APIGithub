@@ -10,14 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.br.apigithub.aac.RepositoryViewModel;
 import com.br.apigithub.beans.GithubRepository;
-import com.br.apigithub.interfaces.IGithubServiceProvider;
-import com.br.apigithub.interfaces.RetrofitServiceContract;
+import com.br.apigithub.beans.Issue;
+import com.br.apigithub.beans.Pull;
 import com.br.apigithub.utils.PermissionUtils;
 
-import java.util.Arrays;
 import java.util.List;
-
-import javax.inject.Inject;
 
 public class MainActivity extends AppCompatActivity {
 //    https://api.github.com/repos/octokit/octokit.rb/pulls
@@ -27,37 +24,76 @@ public class MainActivity extends AppCompatActivity {
 //    https://api.github.com/repos/ronanlima/VitrineEscritores
 //    https://api.github.com/repos/octokit/octokit.rb/issues/1021 -> issue específica (number)
 //    https://api.github.com/repos/octokit/octokit.rb/pulls/1021 -> pr específica (number)
+//    https://api.github.com/repos/olivierlacan/keep-a-changelog/issues
+//    /repos/:owner/:repo/issues/:number
+//    /repos/:owner/:repo/pulls
 
-    @Inject
-    IGithubServiceProvider serviceProvider;
-    @Inject
-    RetrofitServiceContract bla;
-
-    private List<GithubRepository> listRepos;
+    private GithubRepository repository;
+    private List<Issue> listIssues;
+    private List<Pull> listPulls;
     private RepositoryViewModel repoViewMode;
+
+    Observer<GithubRepository> observerRepository = new Observer<GithubRepository>() {
+        @Override
+        public void onChanged(@Nullable GithubRepository repo) {
+            repository = repo;
+        }
+    };
+
+    Observer<List<Issue>> observerIssues = new Observer<List<Issue>>() {
+        @Override
+        public void onChanged(@Nullable List<Issue> issues) {
+            listIssues = issues;
+        }
+    };
+
+    Observer<List<Pull>> observerPulls = new Observer<List<Pull>>() {
+        @Override
+        public void onChanged(@Nullable List<Pull> pulls) {
+            listPulls = pulls;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MyApplication.getComponent().inject(this);
 
         repoViewMode = ViewModelProviders.of(this).get(RepositoryViewModel.class);
-        repoViewMode.getReposGithubLiveData().observe(this, new Observer<List<GithubRepository>>() {
-            @Override
-            public void onChanged(@Nullable List<GithubRepository> list) {
-                listRepos = list;
-            }
-        });
-        repoViewMode.init(serviceProvider);
-        PermissionUtils.requestPermissions(this, 1, Arrays.asList(Manifest.permission.INTERNET));
+        repoViewMode.getGithubLiveData().observe(this, observerRepository);
+        repoViewMode.getIssuesLiveData().observe(this, observerIssues);
+        repoViewMode.getPullsLiveData().observe(this, observerPulls);
+        repoViewMode.init();
+
+        if (PermissionUtils.validate(this, 1, Manifest.permission.INTERNET)) {
+            repoViewMode.searchRepo("octokit", "octokit.rb", 1, 10);
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1) {
-            repoViewMode.searchReposFromUser("olivierlacan", 1, 10);
+        if (grantResults.length != 0) {
+            if (!PermissionUtils.isPermissaoConcedida(grantResults)) {
+//                JFSteelDialog dialog = AlertUtils.criarAlerta(mContext.getResources().getString(R.string.titulo_alerta_permissoes), mContext.getResources().getString(R.string.msg_permissao), JFSteelDialog.TipoAlertaEnum.ALERTA, false, new JFSteelDialog.OnClickDialog() {
+//                    @Override
+//                    public void onClickPositive(View v, String tag) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onClickNegative(View v, String tag) {
+//                        finish();
+//                    }
+//
+//                    @Override
+//                    public void onClickNeutral(View v, String tag) {
+//
+//                    }
+//                });
+//                dialog.show(getSupportFragmentManager(), "dialog");
+            } else {
+                repoViewMode.searchReposFromUser("olivierlacan", 1, 10);
+            }
         }
     }
 }

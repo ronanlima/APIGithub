@@ -1,6 +1,6 @@
 package com.br.apigithub.dagger.components;
 
-import com.br.apigithub.MainActivity;
+import com.br.apigithub.aac.RepositoryViewModel;
 import com.br.apigithub.dagger.modules.GithubModule;
 import com.br.apigithub.dagger.modules.RetrofitModule;
 
@@ -15,5 +15,5 @@ import dagger.Component;
 @Singleton
 @Component(modules = {RetrofitModule.class, GithubModule.class})
 public interface RetrofitComponent {
-    void inject(MainActivity mainActivity);
+    void inject(RepositoryViewModel viewModel);
 }

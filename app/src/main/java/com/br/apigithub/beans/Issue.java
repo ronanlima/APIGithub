@@ -1,5 +1,7 @@
 package com.br.apigithub.beans;
 
+import java.util.List;
+
 /**
  * Created by rlima on 29/05/18.
  */
@@ -8,6 +10,7 @@ public class Issue {
     private Integer number;
     private String title;
     private String body;
+    private Pull pull_request;
 
     public Integer getNumber() {
         return number;
@@ -31,5 +34,13 @@ public class Issue {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public Pull getPull_request() {
+        return pull_request;
+    }
+
+    public void setPull_request(Pull pull_request) {
+        this.pull_request = pull_request;
     }
 }
