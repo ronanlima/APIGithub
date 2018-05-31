@@ -31,6 +31,10 @@ public class RetrofitService {
         return instance;
     }
 
+    public RetrofitService() {
+        setRetrofit(createService());
+    }
+
     public Retrofit createService() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
