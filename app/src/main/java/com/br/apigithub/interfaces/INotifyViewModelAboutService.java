@@ -13,11 +13,15 @@ import java.util.List;
 public interface INotifyViewModelAboutService {
     void returnListRepos(List<GithubRepository> list);
 
-    void returnRepo(GithubRepository repository);
+    void returnRepo(GithubRepository repository, Integer page, Integer limit);
 
-    void returnIssues(List<Issue> issues);
+    void returnIssues(List<Issue> issues, Integer page, Integer limit);
+
+    void updateIssues(List<Issue> issues);
 
     void returnPulls(List<Pull> pulls);
+
+    void updatePulls(List<Pull> pulls);
 
     void notifyOnError(Throwable throwable);
 }

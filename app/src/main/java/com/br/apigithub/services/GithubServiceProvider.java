@@ -30,14 +30,14 @@ public class GithubServiceProvider implements IGithubServiceProvider {
     }
 
     @Override
-    public void retrieveRepo(String nameUser, String nameRepository, Integer page, Integer limit, final INotifyViewModelAboutService listener) {
+    public void retrieveRepo(String nameUser, String nameRepository, final Integer page, final Integer limit, final INotifyViewModelAboutService listener) {
         service.getRetrofitService().getRetrofit().create(GithubEndpoints.class).getEspecificRepoFromUser(nameUser, nameRepository).enqueue(new Callback<GithubRepository>() {
             @Override
             public void onResponse(Call<GithubRepository> call, Response<GithubRepository> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    listener.returnRepo(response.body());
+                    listener.returnRepo(response.body(), page, limit);
                 } else {
-                    listener.returnRepo(null);
+                    listener.returnRepo(null, page, limit);
                 }
             }
 
@@ -68,15 +68,19 @@ public class GithubServiceProvider implements IGithubServiceProvider {
     }
 
     @Override
-    public void getIssues(String userName, String nameRepository, final INotifyViewModelAboutService listener) {
-        service.getRetrofitService().getRetrofit().create(GithubEndpoints.class).getIssuesFromRepo(userName, nameRepository).enqueue(new Callback<List<Issue>>() {
+    public void getIssues(String userName, String nameRepository, final Integer page, final Integer limit, final boolean isUpdating, final INotifyViewModelAboutService listener) {
+        service.getRetrofitService().getRetrofit().create(GithubEndpoints.class).getIssuesFromRepo(userName, nameRepository, page, limit).enqueue(new Callback<List<Issue>>() {
             @Override
             public void onResponse(Call<List<Issue>> call, Response<List<Issue>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Issue> list = getRealIssues(response);
-                    listener.returnIssues(list);
+                    if (!isUpdating) {
+                        listener.returnIssues(list, page, limit);
+                    } else {
+                        listener.updateIssues(list);
+                    }
                 } else {
-                    listener.returnIssues(null);
+                    listener.returnIssues(null, page, limit);
                 }
             }
 
@@ -105,12 +109,16 @@ public class GithubServiceProvider implements IGithubServiceProvider {
     }
 
     @Override
-    public void getPulls(String userName, String nameRepository, Integer page, Integer limit, final INotifyViewModelAboutService listener) {
+    public void getPulls(String userName, String nameRepository, Integer page, Integer limit, final boolean isUpdating, final INotifyViewModelAboutService listener) {
         service.getRetrofitService().getRetrofit().create(GithubEndpoints.class).getPullsFromRepo(userName, nameRepository, page, limit).enqueue(new Callback<List<Pull>>() {
             @Override
             public void onResponse(Call<List<Pull>> call, Response<List<Pull>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    listener.returnPulls(response.body());
+                    if (!isUpdating) {
+                        listener.returnPulls(response.body());
+                    } else {
+                        listener.updatePulls(response.body());
+                    }
                 } else {
                     listener.returnPulls(null);
                 }

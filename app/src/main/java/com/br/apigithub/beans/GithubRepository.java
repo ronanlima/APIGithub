@@ -1,6 +1,5 @@
 package com.br.apigithub.beans;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,9 +38,6 @@ public class GithubRepository {
     }
 
     public List<Issue> getIssues() {
-        if (issues == null) {
-            issues = new ArrayList<>();
-        }
         return issues;
     }
 
@@ -50,9 +46,6 @@ public class GithubRepository {
     }
 
     public List<Pull> getPulls() {
-        if (pulls == null) {
-            pulls = new ArrayList<>();
-        }
         return pulls;
     }
 

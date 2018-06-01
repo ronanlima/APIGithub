@@ -25,6 +25,7 @@ public class RepositoryViewModel extends ViewModel implements INotifyViewModelAb
     private MutableLiveData<GithubRepository> githubLiveData;
     private MutableLiveData<List<Issue>> issuesLiveData;
     private MutableLiveData<List<Pull>> pullsLiveData;
+    private MutableLiveData<String> msgError;
     private String userName;
     private String repo;
 
@@ -36,10 +37,19 @@ public class RepositoryViewModel extends ViewModel implements INotifyViewModelAb
         serviceProvider.retrieveReposFromUser(userName, page, limit, this);
     }
 
-    public void searchRepo(String userName, String repo, Integer page, Integer limit) {
-        this.userName = userName;
-        this.repo = repo;
+    public void searchRepo(String userNameRepo, Integer page, Integer limit) {
+        String aux[] = userNameRepo.split("/");
+        userName = aux[0];
+        repo = aux[1];
         serviceProvider.retrieveRepo(userName, repo, page, limit, this);
+    }
+
+    public void updateIssues(Integer page, Integer limit) {
+        serviceProvider.getIssues(userName, repo, page, limit, true,this);
+    }
+
+    public void updatePulls(Integer page, Integer limit) {
+        serviceProvider.getPulls(userName, repo, page, limit, true, this);
     }
 
     public MutableLiveData<GithubRepository> getGithubLiveData() {
@@ -63,21 +73,42 @@ public class RepositoryViewModel extends ViewModel implements INotifyViewModelAb
         return pullsLiveData;
     }
 
+    public MutableLiveData<String> getMsgError() {
+        if (msgError == null) {
+            msgError = new MutableLiveData<>();
+        }
+        return msgError;
+    }
+
     @Override
     public void returnListRepos(List<GithubRepository> list) {
         githubLiveData.postValue(list.get(0));
     }
 
     @Override
-    public void returnRepo(GithubRepository repository) {
+    public void returnRepo(GithubRepository repository, Integer page, Integer limit) {
         getGithubLiveData().postValue(repository);
-        serviceProvider.getIssues(userName, repo, this);
+        serviceProvider.getIssues(userName, repo, page, limit, false,this);
     }
 
     @Override
-    public void returnIssues(List<Issue> issues) {
+    public void returnIssues(List<Issue> issues, Integer page, Integer limit) {
         getIssuesLiveData().postValue(issues);
-        serviceProvider.getPulls(userName, repo, 1, 6, this);
+        serviceProvider.getPulls(userName, repo, page, limit, false, this);
+    }
+
+    @Override
+    public void updateIssues(List<Issue> issues) {
+        List<Issue> oldValue = getIssuesLiveData().getValue();
+        oldValue.addAll(issues);
+        getIssuesLiveData().postValue(oldValue);
+    }
+
+    @Override
+    public void updatePulls(List<Pull> pulls) {
+        List<Pull> oldValue = getPullsLiveData().getValue();
+        oldValue.addAll(pulls);
+        getPullsLiveData().postValue(oldValue);
     }
 
     @Override
@@ -87,6 +118,6 @@ public class RepositoryViewModel extends ViewModel implements INotifyViewModelAb
 
     @Override
     public void notifyOnError(Throwable throwable) {
-
+        getMsgError().postValue(throwable.getMessage());
     }
 }

@@ -30,7 +30,7 @@ public interface GithubEndpoints {
             "User-Agent: com.br.apigithub"
     })
     @GET("/repos/{user}/{repo}/issues")
-    Call<List<Issue>> getIssuesFromRepo(@Path("user") String user, @Path("repo") String repo);
+    Call<List<Issue>> getIssuesFromRepo(@Path("user") String user, @Path("repo") String repo, @Query("page") Integer page, @Query("per_page") Integer perPage);
 
     @Headers({
             "User-Agent: com.br.apigithub"

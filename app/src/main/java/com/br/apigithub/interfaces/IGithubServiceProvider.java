@@ -9,9 +9,9 @@ public interface IGithubServiceProvider {
 
     void retrieveReposFromUser(String user, Integer page, Integer limit, INotifyViewModelAboutService notifyViewModelAboutService);
 
-    void getIssues(String userName, String nameRepository, INotifyViewModelAboutService listener);
+    void getIssues(String userName, String nameRepository, Integer page, Integer limit, boolean isUpdating, INotifyViewModelAboutService listener);
 
-    void getPulls(String userName, String nameRepository, Integer page, Integer limit, INotifyViewModelAboutService listener);
+    void getPulls(String userName, String nameRepository, Integer page, Integer limit, boolean isUpdating, INotifyViewModelAboutService listener);
 
     void getInfoPullRequest(String fullNameRepo, Integer number);
 
