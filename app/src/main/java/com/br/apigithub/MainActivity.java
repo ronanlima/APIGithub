@@ -6,17 +6,27 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.br.apigithub.aac.RepositoryViewModel;
 import com.br.apigithub.beans.GithubRepository;
 import com.br.apigithub.beans.Issue;
 import com.br.apigithub.beans.Pull;
+import com.br.apigithub.fragments.IssueFragment;
+import com.br.apigithub.fragments.PullRequestFragment;
 import com.br.apigithub.utils.PermissionUtils;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener {
 //    https://api.github.com/repos/octokit/octokit.rb/pulls
 //    https://api.github.com/repos/octokit/octokit.rb/issues?state=open
 //    https://api.github.com/orgs/octokit/repos
@@ -29,9 +39,10 @@ public class MainActivity extends AppCompatActivity {
 //    /repos/:owner/:repo/pulls
 
     private GithubRepository repository;
-    private List<Issue> listIssues;
-    private List<Pull> listPulls;
     private RepositoryViewModel repoViewMode;
+    private RecyclerView recyclerView;
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
 
     Observer<GithubRepository> observerRepository = new Observer<GithubRepository>() {
         @Override
@@ -43,14 +54,14 @@ public class MainActivity extends AppCompatActivity {
     Observer<List<Issue>> observerIssues = new Observer<List<Issue>>() {
         @Override
         public void onChanged(@Nullable List<Issue> issues) {
-            listIssues = issues;
+            repository.setIssues(issues);
         }
     };
 
     Observer<List<Pull>> observerPulls = new Observer<List<Pull>>() {
         @Override
         public void onChanged(@Nullable List<Pull> pulls) {
-            listPulls = pulls;
+            repository.setPulls(pulls);
         }
     };
 
@@ -64,6 +75,21 @@ public class MainActivity extends AppCompatActivity {
         repoViewMode.getIssuesLiveData().observe(this, observerIssues);
         repoViewMode.getPullsLiveData().observe(this, observerPulls);
         repoViewMode.init();
+
+        tabLayout = findViewById(R.id.tabLayout);
+        viewPager = findViewById(R.id.view_pager);
+        viewPager.setAdapter(new TabsAdapter(getSupportFragmentManager()));
+
+        int cor = getResources().getColor(R.color.branco);
+
+        tabLayout.setTabTextColors(cor, cor);
+        tabLayout.addTab(tabLayout.newTab().setText("Issues"));
+        tabLayout.addTab(tabLayout.newTab().setText("PR's"));
+
+        tabLayout.setOnTabSelectedListener(this);
+
+        viewPager.addOnPageChangeListener(new TabLayoutListener(tabLayout));
+        viewPager.setVisibility(View.VISIBLE);
 
         if (PermissionUtils.validate(this, 1, Manifest.permission.INTERNET)) {
             repoViewMode.searchRepo("octokit", "octokit.rb", 1, 10);
@@ -95,5 +121,52 @@ public class MainActivity extends AppCompatActivity {
                 repoViewMode.searchReposFromUser("olivierlacan", 1, 10);
             }
         }
+    }
+
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        viewPager.setCurrentItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
+    }
+}
+
+class TabLayoutListener extends TabLayout.TabLayoutOnPageChangeListener {
+
+    public TabLayoutListener(TabLayout tabLayout) {
+        super(tabLayout);
+    }
+}
+
+class TabsAdapter extends FragmentStatePagerAdapter {
+
+    public TabsAdapter(FragmentManager fm) {
+        super(fm);
+    }
+
+    @Override
+    public Fragment getItem(int position) {
+        if (position == 0) {
+            return IssueFragment.newInstance();
+        }
+        return PullRequestFragment.newInstance();
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return PagerAdapter.POSITION_NONE;
+    }
+
+    @Override
+    public int getCount() {
+        return 2;
     }
 }

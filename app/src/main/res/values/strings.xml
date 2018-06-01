@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">APIGithub</string>
+    <string name="hint_busca">usuário/repositório</string>
 </resources>

@@ -50,6 +50,9 @@ public class GithubRepository {
     }
 
     public List<Pull> getPulls() {
+        if (pulls == null) {
+            pulls = new ArrayList<>();
+        }
         return pulls;
     }
 
