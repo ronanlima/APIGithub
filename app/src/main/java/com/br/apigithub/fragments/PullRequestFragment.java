@@ -75,7 +75,7 @@ public class PullRequestFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         inforSearch = view.findViewById(R.id.info_serarch_pull);
         recyclerView = view.findViewById(R.id.recycler_pr);
-        layoutNoPullRequests = view.findViewById(R.id.recycler_pr);
+        layoutNoPullRequests = view.findViewById(R.id.layout_no_pr);
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
